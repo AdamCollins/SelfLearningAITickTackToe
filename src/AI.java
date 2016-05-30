@@ -26,7 +26,6 @@ public class AI {
         board.playMove(m);
         System.out.println("AI(generation:" + generation+ ") played: " + m);
         return m;
-
     }
 
     private Move chooseMove() {

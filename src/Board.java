@@ -68,6 +68,7 @@ public class Board
            v = 0;
            h = 0;
        }
+
        if(board[1][1] == 1 && (board[0][0]==1 && board[2][2]==1) || (board[0][2]==1 && board[2][0]==1) )
            return 1;
        if(board[1][1] == -1 && (board[0][0]==-1 && board[2][2]==-1) || (board[0][2]==-1 && board[2][0]==-1) )
