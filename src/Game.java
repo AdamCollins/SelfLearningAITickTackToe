@@ -32,6 +32,7 @@ public class Game extends JApplet implements MouseListener{
         int x = 100;
         g = (Graphics2D) _g;
         drawBoard();
+        System.out.println("painted");
 
     }
 
@@ -51,7 +52,13 @@ public class Game extends JApplet implements MouseListener{
             for(int c = 0; c<b.length; c++)
                 if(b[r][c]==1) g.drawString("X",c*windowSize/3+50, r*windowSize/3+220);
                 else if(b[r][c]==-1) g.drawString("O", c*windowSize/3+50, r*windowSize/3+220);
+            System.out.println("Board Drawn");
         }
+
+        if(board.hasWon()!=0 || board.isFull()) gameOverScreen(board.hasWon());
+        if(isPlaying)ai.playTurn();
+        System.out.println(board);
+        if(board.hasWon()!=0 || board.isFull()) gameOverScreen(board.hasWon());
     }
 
     private void resetGame()
@@ -76,10 +83,7 @@ public class Game extends JApplet implements MouseListener{
         if(board.isFreeSpot(m.getC(), m.getR())) {
             board.playMove(m);
             System.out.println(board);
-            if(board.hasWon()!=0 || board.isFull()) gameOverScreen(board.hasWon());
-            if(isPlaying)ai.playTurn();
-            System.out.println(board);
-            if(board.hasWon()!=0 || board.isFull()) gameOverScreen(board.hasWon());
+            System.out.println("Finished boardClicked");
         }
     }
 
@@ -88,8 +92,14 @@ public class Game extends JApplet implements MouseListener{
         Graphics2D g = (Graphics2D) getGraphics();
         g.setFont(new Font("TimesRoman",Font.BOLD ,128));
         g.setColor(new Color(231, 34, 14));
-        g.drawString("GAME OVER", 15,windowSize/2);
-        System.out.println("GAME OVER");
+        String endMessage = "";
+        if(winner == 1)endMessage = "YOU WIN";
+        else if(winner == -1) endMessage = "COMP WIN";
+        else
+        {
+            endMessage = "TIE GAME";
+        }
+        g.drawString(endMessage, 100,windowSize/2);
         isPlaying = false;
         ai.evolve(winner);
     }
