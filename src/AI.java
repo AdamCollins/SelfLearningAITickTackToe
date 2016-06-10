@@ -1,101 +1,140 @@
-import sun.swing.BakedArrayList;
-
 import java.util.ArrayList;
 
-/**
- * Created by Owner on 07/05/2016.
- */
-public class AI {
-    int generation;
-    Board board;
+public class AI
+{
     ArrayList<BoardPosition> boardPositions;
-    ArrayList<BoardPosition> generationBoardpositions;
-
-    public AI(Board b) {
-        board = b;
-        generation = 1;
-        boardPositions = new ArrayList<BoardPosition>();
-        generationBoardpositions = new ArrayList<BoardPosition>();
-    }
-
-    public Move playTurn()
+    ArrayList<BoardPosition> generationBoardPositions;
+    public AI()
     {
-        generationBoardpositions.add(new BoardPosition(board.getMatrix()));
-        Move m = chooseMove();
-        System.out.println(m.getC() + " " + m.getR());
-        board.playMove(m);
-        System.out.println("AI(generation:" + generation+ ") played: " + m);
-        return m;
+        boardPositions = new ArrayList<BoardPosition>();
+        generationBoardPositions = new ArrayList<BoardPosition>();
+        int[][] temp = new int[3][3];
+        temp[0][0] = 1;
+        temp[2][0] = -1;
+        int[][] temp2 = new int[3][3];
+        temp2[0][0] = 1;
+        temp2[2][0] = -1;
+        temp2[2][2] = 1;
+        temp2[1][1] = -1;
+        boardPositions.add(new BoardPosition(temp2));
+        boardPositions.add(new BoardPosition(temp));
+
     }
 
-    private Move chooseMove() {
-        Move m = null;
-        BoardPosition currentBoardPos = new BoardPosition(board.getMatrix());
-        boardPositions.add(currentBoardPos);
-        for (BoardPosition b : boardPositions)
-                if(currentBoardPos.isOnePieceDifference(b)) m = Board.boardDifference(board.getMatrix(), b.getMatrix());
-
-        if (m == null) {
-            int c, r;
-            do {
-                c = (int) (Math.random() * 3);
-                r = (int) (Math.random() * 3);
-            } while (!board.isFreeSpot(c, r));
-            m = new Move(c, r, -1);
+    public void playTurn()
+    {
+        Move move = chooseMove();
+        Board.playMove(move);
+        System.out.println("Moves to choose from: \n-----------------------");
+        for (BoardPosition bp: boardPositions)
+        {
+            System.out.println(bp);
         }
-        return m;
+        System.out.println("AI moved: "+move);
+
     }
-    /*Called when game ends. Learns moves if AI was victorious*/
+
+
+
+    private Move chooseMove()
+    {
+        BoardPosition currentBoardPosition = new BoardPosition(Board.getMatrix());
+        generationBoardPositions.add(currentBoardPosition);
+
+        for (BoardPosition bp:boardPositions)
+        {
+            System.out.println(bp);
+            if(currentBoardPosition.isPossibleNextBoardPos(bp))
+            {
+                System.out.println("Choosen from list");
+                return Board.boardDifference(currentBoardPosition.getBoardMatrix(), bp.getBoardMatrix());
+            }
+        }
+
+        int r,c;
+        do
+        {
+            r = (int)(Math.random()*3);
+            c = (int)(Math.random()*3);
+
+        }while (!Board.isFreeSpot(r,c));
+        System.out.println("choosen randomly");
+        return new Move(r,c,-1);
+    }
+
     public void evolve(int winner)
     {
-        if(winner != 1) {
-            for (BoardPosition gbp : generationBoardpositions)
-                boardPositions.add(gbp);
-            generation++;
-            System.out.println("Evolving...");
+        if(winner!=1)
+        {
+            for (BoardPosition bp: generationBoardPositions)
+            {
+                boardPositions.add(bp);
+                System.out.println(bp);
+            }
+            boardPositions.add(new BoardPosition(Board.getMatrix()));
+            generationBoardPositions = new ArrayList<BoardPosition>();
         }
-        else {
-            System.out.println("Maybe my siblings won't fail like me.");
-        }
+
+    }
+}
+
+class BoardPosition
+{
+    private int[][] boardMatrix;
+    BoardPosition(int[][] b)
+    {
+        boardMatrix = new int[b.length][b[0].length];
+        for (int r = 0; r <b.length; r++)
+            for (int c = 0; c < b[0].length; c++)
+                boardMatrix[r][c] = b[r][c];
     }
 
-    class BoardPosition {
-        int[][] board;
-
-        int victories = 0;
-
-        BoardPosition(int[][] board) {
-            this.board = board;
+    public boolean isPossibleNextBoardPos(BoardPosition b2)
+    {
+        for (int r = 0; r <this.boardMatrix.length; r++)
+        {
+            for (int c = 0; c<this.boardMatrix[0].length; c++)
+            {
+                if(this.boardMatrix[r][c]!=0 && this.boardMatrix[r][c]!=b2.boardMatrix[r][c])
+                    return false;
+            }
         }
 
-        public boolean isOnePieceDifference(BoardPosition b2) {
-            for (int r = 0; r < board.length; r++)
-                for (int c = 0; c < board[0].length; c++)
-                    if (board[r][c] != 0 && board[r][c] != b2.getMatrix()[r][c])
-                        return false;
+        if(this.numOfPieces()+1==b2.numOfPieces())
+            return true;
 
-            if (this.numOfPiecesOnBoard() + 1 == b2.numOfPiecesOnBoard())
-                return true;
-
-            return false;
-        }
-
-        private int numOfPiecesOnBoard() {
-            int n = 0;
-            for (int r = 0; r < board.length; r++)
-                for (int c = 0; c < board[0].length; c++)
-                    if (board[r][c] != 0) n++;
-
-            return n;
-        }
-
-        public int[][] getMatrix() {
-            return board;
-        }
-
-        public int getVictories() {
-            return victories;
-        }
+        return false;
     }
 
+    private int numOfPieces()
+    {
+        int numOfPieces = 0;
+        for (int r = 0; r <boardMatrix.length; r++)
+        {
+            for (int c = 0; c < boardMatrix[0].length; c++)
+            {
+                if (boardMatrix[r][c]!=0) numOfPieces ++;
+            }
+        }
+        return numOfPieces;
+    }
+
+    public int[][] getBoardMatrix() {
+        return boardMatrix;
+    }
+
+    public String toString()
+    {
+        String s = "";
+
+        for (int r = 0; r < boardMatrix.length; r++)
+        {
+            for (int c = 0; c < boardMatrix[0].length; c++)
+            {
+                s+= "["+ boardMatrix[r][c] +"]";
+            }
+            s+="\n";
+        }
+        return s;
+    }
 }

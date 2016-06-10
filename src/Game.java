@@ -22,9 +22,8 @@ public class Game extends JApplet implements MouseListener{
     @Override
     public void init() {
         board = new Board();
-        ai = new AI(board);
+        ai = new AI();
         addMouseListener(this);
-        System.out.println(board);
         isPlaying = true;
     }
 
@@ -32,7 +31,6 @@ public class Game extends JApplet implements MouseListener{
         int x = 100;
         g = (Graphics2D) _g;
         drawBoard();
-        System.out.println("painted");
 
     }
 
@@ -45,26 +43,25 @@ public class Game extends JApplet implements MouseListener{
         g.drawLine(0, windowSize/3, windowSize, windowSize/3);
         g.drawLine(0, windowSize*2/3, windowSize, windowSize*2/3);
 
-        int[][] b = board.getMatrix();
+        int[][] b = Board.getMatrix();
         g.setFont(new Font("TimesRoman",Font.BOLD ,256));
         for(int r = 0; r<b.length; r++)
         {
             for(int c = 0; c<b.length; c++)
                 if(b[r][c]==1) g.drawString("X",c*windowSize/3+50, r*windowSize/3+220);
                 else if(b[r][c]==-1) g.drawString("O", c*windowSize/3+50, r*windowSize/3+220);
-            System.out.println("Board Drawn");
         }
+        if(Board.hasWon()!=0 || Board.isFull())
+            gameOverScreen(Board.hasWon());
 
-        if(board.hasWon()!=0 || board.isFull()) gameOverScreen(board.hasWon());
-        if(isPlaying)ai.playTurn();
         System.out.println(board);
-        if(board.hasWon()!=0 || board.isFull()) gameOverScreen(board.hasWon());
+        if(Board.hasWon()!=0 || Board.isFull()) gameOverScreen(Board.hasWon());
     }
 
     private void resetGame()
     {
         Graphics2D g = (Graphics2D)getGraphics();
-        board.resetBoard();
+        Board.resetBoard();
         g.setColor(new Color(255,255,255));
         g.fillRect(0,0,windowSize,windowSize);
         drawBoard();
@@ -72,18 +69,12 @@ public class Game extends JApplet implements MouseListener{
         System.out.println(board);
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e)
-    {
-
-    }
 
     private void boardClicked(Move m)
     {
-        if(board.isFreeSpot(m.getC(), m.getR())) {
-            board.playMove(m);
-            System.out.println(board);
-            System.out.println("Finished boardClicked");
+        if(Board.isFreeSpot(m.getR(), m.getC())) {
+            Board.playMove(m);
+            if (Board.hasWon()==0 && !Board.isFull()) ai.playTurn();
         }
     }
 
@@ -113,16 +104,14 @@ public class Game extends JApplet implements MouseListener{
     @Override
     public void mouseReleased(MouseEvent e)
     {
-        System.out.println("Mouse Clicked");
-        if(isPlaying) {
-            System.out.println(board);
+        if(isPlaying)
+        {
             repaint(0, 0, windowSize, windowSize);
-            boardClicked(new Move(e.getX() / (windowSize / 3), e.getY() / (windowSize / 3), 1));
+            boardClicked(new Move(e.getY() / (windowSize / 3), e.getX() / (windowSize / 3), 1));
         }
         else
         {
             resetGame();
-            System.out.println("Reset");
         }
     }
 
@@ -133,6 +122,12 @@ public class Game extends JApplet implements MouseListener{
 
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
 
     }
 }
