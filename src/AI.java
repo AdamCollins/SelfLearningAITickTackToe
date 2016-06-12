@@ -16,7 +16,7 @@ public class AI
         temp2[2][0] = -1;
         temp2[2][2] = 1;
         temp2[1][1] = -1;
-        boardPositions.add(new BoardPosition(temp2));
+        //boardPositions.add(new BoardPosition(temp2));
         boardPositions.add(new BoardPosition(temp));
 
     }
@@ -25,6 +25,7 @@ public class AI
     {
         Move move = chooseMove();
         Board.playMove(move);
+        generationBoardPositions.add(new BoardPosition(Board.getMatrix()));
         System.out.println("Moves to choose from: \n-----------------------");
         for (BoardPosition bp: boardPositions)
         {
@@ -39,7 +40,6 @@ public class AI
     private Move chooseMove()
     {
         BoardPosition currentBoardPosition = new BoardPosition(Board.getMatrix());
-        generationBoardPositions.add(currentBoardPosition);
 
         for (BoardPosition bp:boardPositions)
         {
@@ -72,8 +72,8 @@ public class AI
                 System.out.println(bp);
             }
             boardPositions.add(new BoardPosition(Board.getMatrix()));
-            generationBoardPositions = new ArrayList<BoardPosition>();
         }
+        generationBoardPositions = new ArrayList<BoardPosition>();
 
     }
 }
