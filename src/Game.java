@@ -52,9 +52,11 @@ public class Game extends JApplet implements MouseListener{
                 else if(b[r][c]==-1) g.drawString("O", c*windowSize/3+50, r*windowSize/3+220);
         }
         if(Board.hasWon()!=0 || Board.isFull())
+        {
             gameOverScreen(Board.hasWon());
-
-        System.out.println(board);
+            System.out.println(board);
+            return;
+        }
         if(Board.hasWon()!=0 || Board.isFull()) gameOverScreen(Board.hasWon());
     }
 
